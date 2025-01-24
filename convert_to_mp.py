@@ -100,8 +100,9 @@ def process_directory(input_dir, output_dir, convert_mp3=False):
         files_to_process, desc="Converting files", unit="file"
     ):
         filename = os.path.basename(input_file)
-        logger.info(f"Processing file: {filename} (size: {file_size/1024/1024:.2f}MB)")
-        convert_video_to_mp4(input_file, output_dir, convert_mp3)
+        with logfire.span(f"process {filename}"):
+            logger.info(f"Processing file: {filename} (size: {file_size/1024/1024:.2f}MB)")
+            convert_video_to_mp4(input_file, output_dir, convert_mp3)
         total_processed += 1
 
     # 处理完成后显示统计信息
@@ -153,6 +154,7 @@ if __name__ == "__main__":
         print(
             f"Processing single file...\nInput file: {input_path} (size: {file_size/1024/1024:.2f}MB)\nOutput directory: {output_dir}\nConvert to MP3: {'Yes' if convert_mp3 else 'No'}"
         )
-        convert_video_to_mp4(input_path, output_dir, convert_mp3)
+        with logfire.span(f"process file {input_path}"):
+            convert_video_to_mp4(input_path, output_dir, convert_mp3)
 
     logger.success("All conversion processes completed.")
