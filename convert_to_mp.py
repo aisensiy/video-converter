@@ -109,16 +109,17 @@ def process_directory(input_dir, output_dir, convert_mp3=False):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        logger.error(
-            "Usage: python convert_video.py <input_path> <output_directory> [--mp3]\n"
-            "Note: input_path can be either a single file or a directory"
-        )
-        sys.exit(1)
+    import argparse
 
-    input_path = sys.argv[1]
-    output_dir = sys.argv[2]
-    convert_mp3 = "--mp3" in sys.argv
+    parser = argparse.ArgumentParser(description='Convert video files to MP4 format')
+    parser.add_argument('input_path', help='Input file or directory path')
+    parser.add_argument('output_dir', help='Output directory path')
+    parser.add_argument('--mp3', action='store_true', help='Extract audio to MP3 format')
+    args = parser.parse_args()
+
+    input_path = args.input_path
+    output_dir = args.output_dir
+    convert_mp3 = args.mp3
 
     if os.path.isdir(input_path):
         logger.info(f"Processing directory: {input_path}")
@@ -128,7 +129,7 @@ if __name__ == "__main__":
         file_ext = os.path.splitext(input_path)[1].lower()
         supported_formats = [".flv", ".ts"]
         if file_ext not in supported_formats:
-            logger.error(
+            print(
                 f"Unsupported file format. Supported formats are: {', '.join(supported_formats)}"
             )
             sys.exit(1)
@@ -137,12 +138,12 @@ if __name__ == "__main__":
         file_size = os.path.getsize(input_path)
         min_size = 100 * 1024 * 1024  # 100MB in bytes
         if file_size < min_size:
-            logger.warning(
+            print(
                 f"File size ({file_size/1024/1024:.2f}MB) is smaller than 100MB. Skipping..."
             )
             sys.exit(1)
 
-        logger.info(
+        print(
             f"Processing single file...\nInput file: {input_path} (size: {file_size/1024/1024:.2f}MB)\nOutput directory: {output_dir}\nConvert to MP3: {'Yes' if convert_mp3 else 'No'}"
         )
         convert_video_to_mp4(input_path, output_dir, convert_mp3)
