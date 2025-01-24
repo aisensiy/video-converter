@@ -1,3 +1,4 @@
 tqdm
 logfire
 loguru
+python-dotenv

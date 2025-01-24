@@ -2,11 +2,14 @@ import os
 import sys
 import subprocess
 import time
-from tqdm import tqdm
-from loguru import logger
-
 import logfire
 
+from tqdm import tqdm
+from loguru import logger
+from dotenv import load_dotenv
+
+
+load_dotenv()
 logfire.configure()
 logger.configure(handlers=[logfire.loguru_handler()])
 
