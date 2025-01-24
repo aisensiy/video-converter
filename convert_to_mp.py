@@ -33,29 +33,36 @@ def convert_video_to_mp4(input_file, output_dir, convert_mp3=False):
     # 生成输出文件路径
     output_mp4 = os.path.join(output_dir, f"{base_name}.mp4")
 
-    # 转换为 mp4，使用 -c copy 直接复制流
-    print(f"Starting MP4 conversion for {input_file}...")
-    with logfire.span(f"convert {input_file} to mp4"):
-        try:
-            subprocess.run(
-                ["ffmpeg", "-i", input_file, "-c", "copy", output_mp4], check=True
-            )
-            logger.info(f"MP4 conversion complete! File saved at: {output_mp4}")
-        except subprocess.CalledProcessError as e:
-            logger.error(f"Error during MP4 conversion: {e}")
+    # 检查 MP4 文件是否已存在
+    if os.path.exists(output_mp4):
+        logger.info(f"MP4 file already exists, skipping conversion: {output_mp4}")
+    else:
+        # 转换为 mp4，使用 -c copy 直接复制流
+        print(f"Starting MP4 conversion for {input_file}...")
+        with logfire.span(f"convert {input_file} to mp4"):
+            try:
+                subprocess.run(
+                    ["ffmpeg", "-i", input_file, "-c", "copy", output_mp4], check=True
+                )
+                logger.info(f"MP4 conversion complete! File saved at: {output_mp4}")
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Error during MP4 conversion: {e}")
 
     # 如果需要转换为 mp3
     if convert_mp3:
         output_mp3 = os.path.join(output_dir, f"{base_name}.mp3")
-        with logfire.span(f"convert {input_file} to mp3"):
-            try:
-                subprocess.run(
-                    ["ffmpeg", "-i", input_file, "-q:a", "0", "-map", "a", output_mp3],
-                    check=True,
-                )
-                logger.info(f"MP3 conversion complete! File saved at: {output_mp3}")
-            except subprocess.CalledProcessError as e:
-                logger.error(f"Error during MP3 conversion: {e}")
+        if os.path.exists(output_mp3):
+            logger.info(f"MP3 file already exists, skipping conversion: {output_mp3}")
+        else:
+            with logfire.span(f"convert {input_file} to mp3"):
+                try:
+                    subprocess.run(
+                        ["ffmpeg", "-i", input_file, "-q:a", "0", "-map", "a", output_mp3],
+                        check=True,
+                    )
+                    logger.info(f"MP3 conversion complete! File saved at: {output_mp3}")
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Error during MP3 conversion: {e}")
     else:
         logger.info("MP3 conversion skipped as --mp3 argument was not provided.")
 
